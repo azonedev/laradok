@@ -1,0 +1,10 @@
+app
+!.docker/app
+!.docker/nginx
+!.docker/nginx/app
+!.docker/worker
+docker-compose.yml
+.data
+.idea
+.DS_Store
+storage

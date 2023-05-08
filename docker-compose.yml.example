@@ -1,0 +1,79 @@
+version: '3'
+services:
+    gateway_nginx:
+      image: nginx:latest
+      container_name: gateway_nginx
+      tty: true
+      ports:
+          - 8080:80
+          #- 443:443 for production
+      volumes:
+          - ./.docker/nginx/nginx.conf:/etc/nginx/nginx.conf
+          - ./.docker/nginx/app/app.conf:/etc/nginx/conf.d/default.conf 
+          # - ./.docker/nginx/app/dev.conf:/etc/nginx/conf.d/default.conf 
+          #- ./.data/certs/certbot/conf:/etc/letsencrypt #uncomment when production deploy
+          #- ./.data/certs/certbot/www:/var/www/certbot #uncomment when production deploy
+      depends_on:
+          - gateway_app
+      links:
+          - gateway_app
+      environment:
+        - X_SERVER_TYPE=nginx
+
+    gateway_app:
+      build:
+        context: .
+        dockerfile: ./.docker/app/Dockerfile
+      container_name: gateway_app
+      volumes:
+        - ./app:/var/www/app
+      restart: always
+      environment:
+        - X_SERVER_TYPE=app
+
+    gateway_worker:
+      build:
+        context: .
+        dockerfile: ./.docker/worker/Dockerfile
+      container_name: gateway_worker
+      volumes:
+        - ./app:/var/www/app
+        - ./storage/logs/worker:/var/log
+      environment:
+        - X_SERVER_TYPE=worker
+
+    #MySQL Service
+    gateway_db:
+      image: mysql:latest
+      container_name: gateway_db
+      restart: unless-stopped
+      command: --default-authentication-plugin=mysql_native_password
+      tty: true
+      ports:
+        - "3307:3306"
+      environment:
+        MYSQL_DATABASE: kkd_gateway
+        MYSQL_ROOT_PASSWORD: mysql
+        SERVICE_TAGS: dev
+        SERVICE_NAME: mysql
+      volumes:
+        - ./.data/mysql:/var/lib/mysql
+
+    gateway_mailhog:
+      image: mailhog/mailhog
+      container_name: gateway_mailhog
+      logging:
+        driver: 'none'  # disable saving logs
+      ports:
+        - 1025:1025 # smtp server
+        - 8025:8025 # web ui
+
+#Volumes
+volumes:
+  dbdata:
+    driver: local
+    
+networks:
+  default:
+      name: default
+      external: true
