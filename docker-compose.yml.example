@@ -53,18 +53,14 @@ services:
     laradok_db:
       image: mysql:latest
       container_name: laradok_db
-      restart: unless-stopped
-      command: --default-authentication-plugin=mysql_native_password
-      tty: true
-      ports:
-        - "3307:3306"
+      restart: always
       environment:
         MYSQL_DATABASE: ${DB_NAME}
         MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
-        SERVICE_TAGS: dev
-        SERVICE_NAME: mysql
       volumes:
         - ./.data/mysql:/var/lib/mysql
+      ports:
+        - "3306:3306"
       networks:
         - laradok-network
 
