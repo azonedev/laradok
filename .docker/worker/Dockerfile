@@ -1,4 +1,4 @@
-FROM php:8.1-cli-alpine
+FROM php:8.2.1-cli-alpine
 
 # Add Repositories
 RUN rm -f /etc/apk/repositories &&\
