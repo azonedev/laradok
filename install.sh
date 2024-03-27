@@ -37,9 +37,9 @@ sudo chmod -R 777 app/bootstrap/cache
 
 #laravel dependencies
 echo "Installing laravel dependencies"
-docker-compose exec laradok_worker composer install --prefer-source 
+docker-compose exec worker composer install --prefer-source
 echo "Generating laravel key"
-docker-compose exec laradok_app php artisan key:generate 
+docker-compose exec app php artisan key:generate
 
 #up containers
 echo "Re-start containers"
